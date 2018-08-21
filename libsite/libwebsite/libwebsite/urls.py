@@ -20,3 +20,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('libapp.urls')) # Note: all your app urls will start with this path
 ]
+
