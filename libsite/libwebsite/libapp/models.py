@@ -15,16 +15,31 @@ class Book(models.Model):
 	title = models.CharField(max_length=250, unique=True)
 	pub_date = models.DateTimeField()
 	author = models.ForeignKey(Author, on_delete='models.CASCADE')
+	
+	@property	
+	def checked_out(self):
+		last_checkout = self.liblists.order_by('date').last()
+		if last_checkout:
+			return last_checkout.checked_out
+		else:
+			return False
+	
 	def __str__(self):
 			return self.title
 
 class Liblist(models.Model):
-	book = models.ForeignKey(Book, on_delete='models.CASCADE')
+#take list out of the name lullz
+	book = models.ForeignKey(Book, on_delete='models.CASCADE', related_name='liblists')
 # ForeignKey: book (is this just book status? this ain't checkout status tbh
 	member = models.ForeignKey(User, on_delete='models.CASCADE')
 # foreignkey: we need to instantiate a userclass
-	bookcheckoutstatus = models.BooleanField(default=True)
+	checked_out = models.BooleanField(default=True)
 #true means the book  is NOT checked out yet
 	date = models.DateTimeField(default=datetime.now())
 
+	def toggle_checkout(self):
+		self.checked_out = not self.checked_out
+
+	def __str__(self):
+		return 'Book: '+str(self.book)+', Member: '+str(self.member)+', Checked Out: '+str(self.checked_out)+', Date: '+str(self.date)
 # checkout: models.Boolean
