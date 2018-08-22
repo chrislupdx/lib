@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 from django.views.generic.base import TemplateView
 
@@ -11,3 +11,7 @@ urlpatterns = [
     path('nobookforyou/', TemplateView.as_view(template_name = 'libapp/nobookforyou.html'), name='nobookforyou')
 ]
 
+#Add Django site authentication urls (for login, logout, password management)
+urlpatterns += [
+    path('accounts/', include('django.contrib.auth.urls')),
+]

@@ -15,7 +15,8 @@ class Book(models.Model):
 	title = models.CharField(max_length=250, unique=True)
 	pub_date = models.DateTimeField()
 	author = models.ForeignKey(Author, on_delete='models.CASCADE')
-	
+	borrower = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
 	@property	
 	def checked_out(self):
 		last_checkout = self.liblists.order_by('date').last()
@@ -24,6 +25,12 @@ class Book(models.Model):
 		else:
 			return False
 	
+	@property
+	def is_overdue(self):
+		if self.due_back and date.today() > self.due_back:
+			return True
+		return False
+
 	def __str__(self):
 			return self.title
 
