@@ -2,10 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from .models import Book, Liblist
 
+
 def index(request):
     # sub in models for libraries
     probablybooks = Book.objects.all() 
-    return render(request, 'libwebsite/index.html', {'books':probablybooks})
+    return render(request, 'libapp/index.html', {'books':probablybooks})
 
 #assign the book to a user if there are no issues (manage issues as they come)
 def checkinout(request, bookpk): 
@@ -19,16 +20,14 @@ def checkinout(request, bookpk):
         #create a new entry to liblist for checking the book back in
             check_in = Liblist(book=book,member=request.user, checked_out=False)
             check_in.save()
-        else: #say the book is checked out by somebody else
-            #make it display a clone template that says a "nah can't do?"
-            pass
-    else: #should we just let the user take the book out? 
-        pass
-        
+        else:
+            return render(request, 'libapp/nobookforyou.html', context)
 
+           
+    else:
+        check_in = Liblist(book=book,member=request.user, checked_out=True)
+        check_in.save()
 
-    # if checked_out.last_checkout is true check out        
-    # if member.last_checkout != null, check out      
 
 
 #assign book to user 
