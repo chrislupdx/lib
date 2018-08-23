@@ -18,13 +18,27 @@
   <li>
     {{ book }}
     <a href="{% url 'libapp:checkout' bookpk=book.pk %}">
-      <button type="submit">Checkout</button>
+    
+    {% if user.is_authenticated %}
+      {% if book.borrower == user %}
+          <button type="submit">Check-in</button>
+      {% elif book.checked_out == False %}
+          <button type="submit">Check-out</button>
+      {% endif %}
+    {% endif %}
     </a>
-  </li
->
-
+  </li>
 {% endfor%}
 </ul>
+
+{# the following list is to show books the user has registered under their name  #}
+<ul>
+    <ul>checked out books</ul>
+    {% for book in borrowlist %}
+    <ul>{{ book }}</ul>
+    {% endfor %}
+</ul>
+
   <ul class="sidebar-nav">
    {% if user.is_authenticated %}
      <li>User: {{ user.get_username }}</li>

@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from .models import Book, Liblist
 
@@ -6,27 +7,36 @@ from .models import Book, Liblist
 def index(request):
     # sub in models for libraries
     probablybooks = Book.objects.all() 
-    return render(request, 'libapp/index.html', {'books':probablybooks})
+    checked_out_books = None
+    if request.user.is_authenticated:
+        checked_out_books = Book.objects.filter(borrower=request.user)
+    return render(request, 'libapp/index.html', {'books':probablybooks, 'borrowlist':checked_out_books})
+
+
+#build aout a context that links  Liblist to index
+
 
 #assign the book to a user if there are no issues (manage issues as they come)
+@login_required
 def checkinout(request, bookpk): 
     book = get_object_or_404(Book, pk=bookpk)
     if book.checked_out:
-        last_checkout = Liblist.objects.filter(book=book).order_by('date').last()
         #member needs to be the latest
-        member = last_checkout.member
-        print(last_checkout, member)
+        member = book.borrower
         if request.user == member:
         #create a new entry to liblist for checking the book back in
             check_in = Liblist(book=book,member=request.user, checked_out=False)
             check_in.save()
+            book.borrower = None
+            book.save()
         else:
-            return render(request, 'libapp/nobookforyou.html', context)
-
-           
+            return render(request, 'libapp/nobookforyou.html')
     else:
-        check_in = Liblist(book=book,member=request.user, checked_out=True)
-        check_in.save()
+        check_out = Liblist(book=book,member=request.user, checked_out=True)
+        check_out.save()
+        book.borrower = request.user
+        book.save()
+    return redirect('libapp:index')
 
 
 

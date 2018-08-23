@@ -14,12 +14,12 @@ class Author(models.Model):
 class Book(models.Model):
 	title = models.CharField(max_length=250, unique=True)
 	pub_date = models.DateTimeField()
-	author = models.ForeignKey(Author, on_delete='models.CASCADE')
+	author = models.ForeignKey(Author, on_delete=models.CASCADE)
 	borrower = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
 	@property	
 	def checked_out(self):
-		last_checkout = self.liblists.order_by('date').last()
+		last_checkout = self.liblists.last()
 		if last_checkout:
 			return last_checkout.checked_out
 		else:
@@ -36,9 +36,9 @@ class Book(models.Model):
 
 class Liblist(models.Model):
 #take list out of the name lullz
-	book = models.ForeignKey(Book, on_delete='models.CASCADE', related_name='liblists')
+	book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='liblists')
 # ForeignKey: book (is this just book status? this ain't checkout status tbh
-	member = models.ForeignKey(User, on_delete='models.CASCADE')
+	member = models.ForeignKey(User, on_delete=models.CASCADE)
 # foreignkey: we need to instantiate a userclass
 	checked_out = models.BooleanField(default=True)
 #true means the book  is NOT checked out yet
